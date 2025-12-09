@@ -89,18 +89,42 @@ async function startBot() {
   }
   
   console.log(`📝 Starting bot script: ${botScript}`);
+  console.log(`📁 Working directory: ${__dirname}`);
+  console.log(`🐍 Python command: ${pythonCmd}`);
   console.log('');
   
-  // Spawn Python process
+  // Spawn Python process with explicit output handling
   const botProcess = spawn(pythonCmd, [botScript], {
     cwd: __dirname,
-    stdio: 'inherit',
-    shell: true
+    stdio: ['ignore', 'pipe', 'pipe'], // Use pipes to capture output
+    shell: true,
+    env: process.env
+  });
+  
+  // Forward stdout to console
+  botProcess.stdout.on('data', (data) => {
+    const output = data.toString();
+    process.stdout.write(output);
+    // Force flush
+    if (process.stdout.isTTY) {
+      process.stdout.write('');
+    }
+  });
+  
+  // Forward stderr to console
+  botProcess.stderr.on('data', (data) => {
+    const output = data.toString();
+    process.stderr.write(output);
+    // Force flush
+    if (process.stderr.isTTY) {
+      process.stderr.write('');
+    }
   });
   
   // Handle process events
   botProcess.on('error', (error) => {
     console.error('❌ Failed to start bot:', error.message);
+    console.error('Error details:', error);
     process.exit(1);
   });
   
@@ -109,6 +133,7 @@ async function startBot() {
       console.log(`\n⚠️  Bot exited with code ${code}`);
       if (code !== 0) {
         console.error('❌ Bot crashed. Check logs above for errors.');
+        console.error(`Exit code: ${code}, Signal: ${signal || 'none'}`);
         process.exit(code);
       }
     } else if (signal) {
@@ -116,6 +141,10 @@ async function startBot() {
       process.exit(1);
     }
   });
+  
+  // Log that process started
+  console.log('✅ Bot process started, waiting for output...');
+  console.log('');
   
   // Handle graceful shutdown
   process.on('SIGINT', () => {
@@ -137,8 +166,14 @@ async function startBot() {
 }
 
 // Start the bot
+console.log('='.repeat(50));
+console.log('KIE Telegram Bot - Starting...');
+console.log('='.repeat(50));
+console.log('');
+
 startBot().catch((error) => {
   console.error('❌ Fatal error:', error);
+  console.error('Error stack:', error.stack);
   process.exit(1);
 });
 
