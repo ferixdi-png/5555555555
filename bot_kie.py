@@ -47,7 +47,9 @@ try:
     import pytesseract
     OCR_AVAILABLE = True
     
-    # Try to set Tesseract path for Windows
+    # Try to set Tesseract path
+    # On Windows, check common installation paths
+    # On Linux (Timeweb), Tesseract should be in PATH
     if platform.system() == 'Windows':
         # Common Tesseract installation paths on Windows
         possible_paths = [
@@ -62,21 +64,21 @@ try:
                 tesseract_found = True
                 logger.info(f"Tesseract found at: {path}")
                 break
-        
-        if not tesseract_found:
-            # Try to find in PATH
-            try:
-                import shutil
-                tesseract_path = shutil.which('tesseract')
-                if tesseract_path:
-                    pytesseract.pytesseract.tesseract_cmd = tesseract_path
-                    logger.info(f"Tesseract found in PATH: {tesseract_path}")
-                    tesseract_found = True
-            except:
-                pass
-        
-        if not tesseract_found:
-            logger.warning("Tesseract not found in common locations. Make sure it's installed and in PATH.")
+    
+    # Try to find Tesseract in PATH (works on both Windows and Linux)
+    if not tesseract_found:
+        try:
+            import shutil
+            tesseract_path = shutil.which('tesseract')
+            if tesseract_path:
+                pytesseract.pytesseract.tesseract_cmd = tesseract_path
+                logger.info(f"Tesseract found in PATH: {tesseract_path}")
+                tesseract_found = True
+        except Exception as e:
+            logger.debug(f"Could not find Tesseract in PATH: {e}")
+    
+    if not tesseract_found:
+        logger.warning("Tesseract not found. OCR analysis will be disabled. Install tesseract-ocr package if needed.")
     
     # Test if Tesseract works
     try:

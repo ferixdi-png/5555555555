@@ -33,7 +33,13 @@ if not BOT_TOKEN or BOT_TOKEN == "your_bot_token_here":
     print("3. Run this script again")
     sys.exit(1)
 
+print("=" * 60)
 print("Starting KIE Telegram Bot...")
+print("=" * 60)
+print(f"Python version: {sys.version}")
+print(f"Working directory: {os.getcwd()}")
+print(f"Platform: {os.name}")
+print("=" * 60)
 sys.stdout.flush()
 
 # Import and run the bot only if token is available

@@ -166,10 +166,18 @@ async function startBot() {
 }
 
 // Start the bot
-console.log('='.repeat(50));
+console.log('='.repeat(60));
 console.log('KIE Telegram Bot - Starting...');
-console.log('='.repeat(50));
+console.log('='.repeat(60));
+console.log(`Node.js version: ${process.version}`);
+console.log(`Platform: ${process.platform}`);
+console.log(`Working directory: ${__dirname}`);
+console.log('='.repeat(60));
 console.log('');
+
+// Ensure output is flushed immediately
+process.stdout.setEncoding('utf8');
+process.stderr.setEncoding('utf8');
 
 startBot().catch((error) => {
   console.error('❌ Fatal error:', error);
